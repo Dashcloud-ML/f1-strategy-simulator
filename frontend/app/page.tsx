@@ -1,69 +1,70 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+const STEPS = [
+  { label: "Circuit & Driver", detail: "Pick a track and a driver from the grid." },
+  { label: "Weather", detail: "Dry through heavy rain — each shifts pace and degradation." },
+  { label: "Tyres & Pit Stop", detail: "Choose your starting compound, pit lap and next compound." },
+  { label: "Run It", detail: "See finishing position, race time, lap chart and tyre wear." },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-col gap-16">
+      <section className="grid gap-10 py-10 md:grid-cols-[1.2fr_1fr] md:items-center">
+        <div>
+          <p className="telemetry text-sm uppercase tracking-[0.2em] text-circuit">
+            Lap 1 / Strategy Locked In
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <h1 className="mt-3 text-5xl font-bold leading-[1.05] text-graphite md:text-6xl">
+            Call the strategy.
+            <br />
+            Run the race.
+          </h1>
+          <p className="mt-5 max-w-md text-graphite-soft">
+            Set your tyres, your pit lap and the weather — then watch a lap-by-lap
+            simulation decide whether it was the right call.
+          </p>
+          <Link
+            href="/race-setup"
+            className="mt-8 inline-flex items-center rounded bg-signal px-6 py-3 font-display text-sm font-semibold uppercase tracking-wide text-graphite transition hover:bg-signal-strong"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Start a Simulation
+          </Link>
         </div>
-      </main>
+
+        <div className="rounded border border-track-line bg-graphite p-6 text-track-bg">
+          <p className="telemetry text-xs uppercase tracking-widest text-signal">Box Box Box</p>
+          <dl className="mt-4 space-y-3 telemetry text-sm">
+            <div className="flex justify-between border-b border-white/10 pb-2">
+              <dt className="text-white/50">Pit Lap</dt>
+              <dd>25 / 53</dd>
+            </div>
+            <div className="flex justify-between border-b border-white/10 pb-2">
+              <dt className="text-white/50">Tyre</dt>
+              <dd>MEDIUM &rarr; HARD</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-white/50">Est. Loss</dt>
+              <dd>22.4s</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-graphite-soft">
+          How it works
+        </h2>
+        <ol className="mt-4 grid gap-4 md:grid-cols-4">
+          {STEPS.map((step, i) => (
+            <li key={step.label} className="rounded border border-track-line bg-track-surface p-5">
+              <p className="telemetry text-xs text-circuit">{String(i + 1).padStart(2, "0")}</p>
+              <p className="mt-2 font-display font-semibold text-graphite">{step.label}</p>
+              <p className="mt-1 text-sm text-graphite-soft">{step.detail}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }
