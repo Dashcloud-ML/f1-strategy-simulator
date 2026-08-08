@@ -1,4 +1,4 @@
-import { Circuit } from "@f1-sim/shared";
+import { Circuit } from "../types";
 
 // Small set for now — expand once the engine and UI are working end-to-end.
 export const CIRCUITS: Circuit[] = [

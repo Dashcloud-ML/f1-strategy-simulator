@@ -1,7 +1,5 @@
 import { LapResult, SimulationRequest, SimulationResult } from "@f1-sim/shared";
-import { getCircuitById } from "../data/circuits";
-import { getDriverById } from "../data/drivers";
-import { TYRE_OPTIONS, WEATHER_OPTIONS } from "../data/referenceOptions";
+import { getCircuitById, getDriverById, TYRE_OPTIONS, WEATHER_OPTIONS } from "@f1-sim/shared";
 
 export function runSimulation(request: SimulationRequest): SimulationResult {
   const circuit = getCircuitById(request.circuitId);

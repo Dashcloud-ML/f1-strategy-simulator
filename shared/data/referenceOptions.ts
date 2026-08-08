@@ -1,4 +1,4 @@
-import { TyreOption, WeatherOption } from "@f1-sim/shared";
+import { TyreOption, WeatherOption } from "../types";
 
 export const WEATHER_OPTIONS: WeatherOption[] = [
   { id: "dry", label: "Dry", lapTimeModifier: 1.0, degradationModifier: 1.0 },

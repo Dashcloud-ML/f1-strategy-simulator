@@ -4,10 +4,11 @@
     "module": "commonjs",
     "declaration": true,
     "outDir": "dist",
-    "rootDir": "types",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
-  "include": ["types/**/*.ts"]
+  "include": ["types/**/*.ts", "data/**/*.ts", "index.ts"]
 }

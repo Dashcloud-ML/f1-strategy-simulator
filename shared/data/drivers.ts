@@ -1,4 +1,4 @@
-import { Driver } from "@f1-sim/shared";
+import { Driver } from "../types";
 
 export const DRIVERS: Driver[] = [
   {
