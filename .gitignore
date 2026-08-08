@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Build output
+backend/dist/
+infrastructure/cdk.out/
+shared/dist/
+
+# Env files
+.env
+.env.local
+
+# Misc
+.DS_Store
+*.log
