@@ -8,6 +8,3 @@ and see the estimated result: finishing position, race time, a lap chart, and ty
 
 ## Stack
 Next.js · TypeScript · Tailwind CSS · AWS Lambda · API Gateway · DynamoDB · AWS CDK
-
-## Docs
-See [`docs/vision.md`](./docs/vision.md) for the full project plan.
