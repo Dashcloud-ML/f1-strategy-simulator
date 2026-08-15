@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -9,34 +9,50 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
+      - run: npm install
+      - run: npm run build --workspace=shared
+      - run: npm run test --workspace=backend
+      - run: npm run build --workspace=backend
+      - name: Build frontend
+        run: npm run build --workspace=frontend
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+      - name: CDK synth
+        working-directory: infrastructure
+        run: npx cdk synth
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build shared types
-        run: npm run build --workspace=shared
-
-      - name: Test backend
-        run: npm run test --workspace=backend
-
-      - name: Build backend
-        run: npm run build --workspace=backend
-
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required for OIDC — lets this job request a token
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm install
+      - run: npm run build --workspace=shared
       - name: Build frontend
         run: npm run build --workspace=frontend
         env:
           NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
 
-      - name: CDK synth (validates infrastructure compiles)
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Deploy all stacks
         working-directory: infrastructure
-        run: npx cdk synth
+        run: npx cdk deploy --all --require-approval never
