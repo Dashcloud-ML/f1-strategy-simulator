@@ -24,4 +24,5 @@ export const api = {
   runSimulation: (body: SimulationRequest) =>
     request<SimulationRecord>("/simulate", { method: "POST", body: JSON.stringify(body) }),
   getSimulation: (simulationId: string) => request<SimulationRecord>(`/simulation/${simulationId}`),
+  getHistory: (userId: string) => request<SimulationRecord[]>(`/history?userId=${encodeURIComponent(userId)}`),
 };
