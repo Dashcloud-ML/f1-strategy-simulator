@@ -22,3 +22,19 @@ export interface SimulationResult {
   totalRaceTimeSeconds: number;
   laps: LapResult[];
 }
+
+/** A saved simulation — what POST /simulate persists and GET /simulation/{id} and GET /history return */
+export interface SimulationRecord {
+  simulationId: string;
+  userId: string;
+  race: string; // circuitId
+  driver: string; // driverId
+  weather: WeatherCondition;
+  tyres: {
+    starting: TyreCompound;
+    pitLap: number;
+    next: TyreCompound;
+  };
+  result: SimulationResult;
+  createdAt: string; // ISO timestamp
+}
