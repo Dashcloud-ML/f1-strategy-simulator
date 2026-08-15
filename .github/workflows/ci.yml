@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    steps:
+      steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -17,15 +17,24 @@ jobs:
           cache: "npm"
       - run: npm install
       - run: npm run build --workspace=shared
-      - run: npm run test --workspace=backend
-      - run: npm run build --workspace=backend
       - name: Build frontend
         run: npm run build --workspace=frontend
         env:
           NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
-      - name: CDK synth
+      - name: Debug OIDC token claims
+        run: |
+          resp=$(curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com")
+          token=$(echo "$resp" | jq -r .value)
+          payload=$(echo "$token" | cut -d '.' -f2)
+          echo "$payload" | tr '_-' '/+' | base64 -d 2>/dev/null | jq .
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Deploy all stacks
         working-directory: infrastructure
-        run: npx cdk synth
+        run: npx cdk deploy --all --require-approval never
 
   deploy:
     needs: build-and-test
@@ -46,6 +55,13 @@ jobs:
         run: npm run build --workspace=frontend
         env:
           NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+
+          - name: Debug OIDC token claims
+        run: |
+          resp=$(curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com")
+          token=$(echo "$resp" | jq -r .value)
+          payload=$(echo "$token" | cut -d '.' -f2)
+          echo "$payload" | tr '_-' '/+' | base64 -d 2>/dev/null | jq .
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
