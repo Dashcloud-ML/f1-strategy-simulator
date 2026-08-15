@@ -3,6 +3,7 @@ import "source-map-support/register";
 import { App } from "aws-cdk-lib";
 import { DatabaseStack } from "../lib/database-stack";
 import { BackendStack } from "../lib/backend-stack";
+import { FrontendStack } from "../lib/frontend-stack";
 
 const app = new App();
 
@@ -18,3 +19,5 @@ new BackendStack(app, "F1Sim-Backend", {
   usersTable: databaseStack.usersTable,
   simulationsTable: databaseStack.simulationsTable,
 });
+
+new FrontendStack(app, "F1Sim-Frontend", { env });
