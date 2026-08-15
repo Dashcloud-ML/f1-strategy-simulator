@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CIRCUITS, WEATHER_OPTIONS, TYRE_OPTIONS } from "@f1-sim/shared";
-import type { TyreCompound, WeatherCondition } from "@f1-sim/shared";
+import type { Circuit, TyreOption, WeatherOption, TyreCompound, WeatherCondition } from "@f1-sim/shared";
+import { api } from "@/lib/api";
 import { useWizard } from "@/lib/wizard-context";
 
 export default function StrategyBuilderPage() {
@@ -11,7 +12,41 @@ export default function StrategyBuilderPage() {
     setWeather, setStartingTyre, setPitLap, setNextTyre,
   } = useWizard();
 
-  const circuit = CIRCUITS.find((c) => c.circuitId === circuitId);
+  const [circuits, setCircuits] = useState<Circuit[]>([]);
+  const [weatherOptions, setWeatherOptions] = useState<WeatherOption[]>([]);
+  const [tyreOptions, setTyreOptions] = useState<TyreOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const [circuitsData, options] = await Promise.all([
+          api.getCircuits(),
+          api.getWeatherOptions(),
+        ]);
+        if (!cancelled) {
+          setCircuits(circuitsData);
+          setWeatherOptions(options.weather);
+          setTyreOptions(options.tyres);
+        }
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load strategy data");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) return <p className="text-graphite-soft">Loading strategy options…</p>;
+  if (error) return <p className="text-red-600">Couldn&apos;t load strategy data: {error}</p>;
+
+  const circuit = circuits.find((c) => c.circuitId === circuitId);
 
   if (!circuit) {
     return (
@@ -43,7 +78,7 @@ export default function StrategyBuilderPage() {
             onChange={(e) => setWeather(e.target.value as WeatherCondition)}
           >
             <option value="" disabled>Select weather</option>
-            {WEATHER_OPTIONS.map((w) => (
+            {weatherOptions.map((w) => (
               <option key={w.id} value={w.id}>{w.label}</option>
             ))}
           </select>
@@ -57,16 +92,14 @@ export default function StrategyBuilderPage() {
             onChange={(e) => setStartingTyre(e.target.value as TyreCompound)}
           >
             <option value="" disabled>Select starting tyre</option>
-            {TYRE_OPTIONS.map((t) => (
+            {tyreOptions.map((t) => (
               <option key={t.id} value={t.id}>{t.label}</option>
             ))}
           </select>
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-graphite-soft">
-            Pit Lap (1–{maxPitLap})
-          </span>
+          <span className="text-sm font-semibold text-graphite-soft">Pit Lap (1–{maxPitLap})</span>
           <input
             type="number"
             min={1}
@@ -85,7 +118,7 @@ export default function StrategyBuilderPage() {
             onChange={(e) => setNextTyre(e.target.value as TyreCompound)}
           >
             <option value="" disabled>Select next tyre</option>
-            {TYRE_OPTIONS.map((t) => (
+            {tyreOptions.map((t) => (
               <option key={t.id} value={t.id}>{t.label}</option>
             ))}
           </select>

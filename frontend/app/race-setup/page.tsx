@@ -1,12 +1,52 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CIRCUITS, DRIVERS } from "@f1-sim/shared";
+import type { Circuit, Driver } from "@f1-sim/shared";
+import { api } from "@/lib/api";
 import { useWizard } from "@/lib/wizard-context";
 
 export default function RaceSetupPage() {
   const { circuitId, driverId, setCircuitId, setDriverId } = useWizard();
+
+  const [circuits, setCircuits] = useState<Circuit[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const [circuitsData, driversData] = await Promise.all([
+          api.getCircuits(),
+          api.getDrivers(),
+        ]);
+        if (!cancelled) {
+          setCircuits(circuitsData);
+          setDrivers(driversData);
+        }
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load race data");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
   const canContinue = circuitId !== null && driverId !== null;
+
+  if (loading) {
+    return <p className="text-graphite-soft">Loading circuits and drivers…</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-600">Couldn&apos;t load race data: {error}</p>;
+  }
 
   return (
     <div>
@@ -22,7 +62,7 @@ export default function RaceSetupPage() {
             onChange={(e) => setCircuitId(e.target.value)}
           >
             <option value="" disabled>Select a circuit</option>
-            {CIRCUITS.map((c) => (
+            {circuits.map((c) => (
               <option key={c.circuitId} value={c.circuitId}>
                 {c.name} ({c.totalLaps} laps)
               </option>
@@ -38,10 +78,8 @@ export default function RaceSetupPage() {
             onChange={(e) => setDriverId(e.target.value)}
           >
             <option value="" disabled>Select a driver</option>
-            {DRIVERS.map((d) => (
-              <option key={d.driverId} value={d.driverId}>
-                {d.name} — {d.team}
-              </option>
+            {drivers.map((d) => (
+              <option key={d.driverId} value={d.driverId}>{d.name} — {d.team}</option>
             ))}
           </select>
         </label>

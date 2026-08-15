@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import type { TyreCompound, WeatherCondition } from "@f1-sim/shared";
+import type { SimulationRecord, TyreCompound, WeatherCondition } from "@f1-sim/shared";
 
 interface WizardContextValue {
   circuitId: string | null;
@@ -10,12 +10,14 @@ interface WizardContextValue {
   startingTyre: TyreCompound | null;
   pitLap: number | null;
   nextTyre: TyreCompound | null;
+  simulationRecord: SimulationRecord | null;
   setCircuitId: (id: string) => void;
   setDriverId: (id: string) => void;
   setWeather: (w: WeatherCondition) => void;
   setStartingTyre: (t: TyreCompound) => void;
   setPitLap: (lap: number) => void;
   setNextTyre: (t: TyreCompound) => void;
+  setSimulationRecord: (r: SimulationRecord) => void;
 }
 
 const WizardContext = createContext<WizardContextValue | null>(null);
@@ -27,12 +29,13 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const [startingTyre, setStartingTyre] = useState<TyreCompound | null>(null);
   const [pitLap, setPitLap] = useState<number | null>(null);
   const [nextTyre, setNextTyre] = useState<TyreCompound | null>(null);
+  const [simulationRecord, setSimulationRecord] = useState<SimulationRecord | null>(null);
 
   return (
     <WizardContext.Provider
       value={{
-        circuitId, driverId, weather, startingTyre, pitLap, nextTyre,
-        setCircuitId, setDriverId, setWeather, setStartingTyre, setPitLap, setNextTyre,
+        circuitId, driverId, weather, startingTyre, pitLap, nextTyre, simulationRecord,
+        setCircuitId, setDriverId, setWeather, setStartingTyre, setPitLap, setNextTyre, setSimulationRecord,
       }}
     >
       {children}
